@@ -3,13 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Dev.KC;
 
 public class PlayerEntity : MonoBehaviour, IEntity, UserActions.IPlayerActions
 {
     private UserActions input;
     private Rigidbody2D rigid;
-    private KCMotor2D motor;
+    private CharacterController2D cc;
 
     [SerializeField]
     private float moveSpeed = 5f;
@@ -28,14 +27,14 @@ public class PlayerEntity : MonoBehaviour, IEntity, UserActions.IPlayerActions
     void Start()
     {
         rigid = GetComponent<Rigidbody2D>();
-        motor = GetComponent<KCMotor2D>();
+        cc = GetComponent<CharacterController2D>();
     }
 
     private void Movement(InputAction.CallbackContext context)
     {
         var moveVec = context.ReadValue<Vector2>() * moveSpeed;
 
-        motor.Move(moveVec);
+        cc.Move(moveVec);
     }
 
     #region IPlayerActions 인터페이스

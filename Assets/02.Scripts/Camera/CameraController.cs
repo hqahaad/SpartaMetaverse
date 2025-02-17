@@ -10,7 +10,7 @@ public class CameraController : MonoBehaviour
 
     void Awake()
     {
-        currentAction = new NormalFollowGameObject(GameObject.Find("DummyPlayer"));
+        currentAction = new NormalFollowGameObject(GameObject.Find("Player"));
         currentAction.SetCamera(this.GetComponent<Camera>());
     }
 
