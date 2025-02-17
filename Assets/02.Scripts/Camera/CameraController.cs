@@ -5,23 +5,23 @@ using Dev.CameraAction;
 
 public class CameraController : MonoBehaviour
 {
-    private List<ICameraAction> actions = new();
-    private ICameraAction currentAction;
+    private List<ICameraAction> _actions = new();
+    private ICameraAction _currentAction;
 
     void Awake()
     {
-        currentAction = new NormalFollowGameObject(GameObject.Find("Player"));
-        currentAction.SetCamera(this.GetComponent<Camera>());
+        _currentAction = new NormalFollowGameObject(GameObject.Find("Player"));
+        _currentAction.SetCamera(this.GetComponent<Camera>());
     }
 
     void Update()
     {
-        currentAction?.UpdateCamera();
+        _currentAction?.UpdateCamera();
     }
 
     void FixedUpdate()
     {
-        currentAction?.FixedUpdateCamera();
+        _currentAction?.FixedUpdateCamera();
     }
 }
 
@@ -29,12 +29,12 @@ namespace Dev.CameraAction
 {
     public class NormalFollowGameObject : ICameraAction
     {
-        private Camera camera;
-        private GameObject followingGameObject;
+        private Camera _camera;
+        private GameObject _followingGameObject;
 
         public NormalFollowGameObject(GameObject go)
         {
-            followingGameObject = go;
+            _followingGameObject = go;
         }
 
         public void UpdateCamera()
@@ -44,13 +44,14 @@ namespace Dev.CameraAction
 
         public void FixedUpdateCamera()
         {
-            var trans = followingGameObject.transform;
-            camera.transform.position = new Vector3(trans.position.x, trans.position.y, camera.transform.position.z);
+            var trans = _followingGameObject.transform;
+            //camera.transform.position = new Vector3(trans.position.x, trans.position.y, camera.transform.position.z);
+            _camera.transform.position = Vector3.Lerp(_camera.transform.position, new Vector3(trans.position.x, trans.position.y, _camera.transform.position.z), 0.5f);
         }
 
         public void SetCamera(Camera camera)
         {
-            this.camera = camera;
+            this._camera = camera;
         }
     }
 

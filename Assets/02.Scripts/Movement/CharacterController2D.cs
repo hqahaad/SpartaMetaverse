@@ -6,6 +6,8 @@ using UnityEngine;
 [RequireComponent(typeof(CapsuleCollider2D))]
 public class CharacterController2D : MonoBehaviour
 {
+    //ScriptableObject로 바꾸자
+
     [Header("Floating Capsule")]
     [SerializeField] private FloatingCapsule floatingCapsule;
     [SerializeField] private float floatingStrength;
@@ -46,11 +48,21 @@ public class CharacterController2D : MonoBehaviour
 
     private const int _maxBudget = 10;
 
+    //properties
+    public bool IsGround => isGround;
+    public bool IsSlope => isSlope;
+    public bool IsSteepSlope => isSteepSlope;
+    public Vector2 GroundNormal => _groundNormal;
+
     public void Move(Vector2 input)
     {
         InternalMove(input);
     }
 
+    public void Jump(float strength)
+    {
+        _gravity = -strength;
+    }
 
     private void DetectedGround()
     {
@@ -108,7 +120,7 @@ public class CharacterController2D : MonoBehaviour
         if (!useGravity)
             return;
 
-        if (isGround && !isSteepSlope)
+        if (isGround && !isSteepSlope && _gravity > 0f)
         {
             _gravity = 0f;
         }
@@ -117,7 +129,7 @@ public class CharacterController2D : MonoBehaviour
             _gravity += gravityForce;
         }
 
-        _gravity = Mathf.Clamp(_gravity, 0f, maxGravityForce);
+        //_gravity = Mathf.Clamp(_gravity, 0f, maxGravityForce);
         _gravityVelocity = gravityDirection.normalized * _gravity;
 
         if (isSteepSlope)
