@@ -40,7 +40,7 @@ public class FlappyBird : MonoBehaviour, IMiniGame
             _pool[i].gameObject.SetActive(false);
         }
 
-        StartCoroutine("SpawnObstacleCo");
+        StartCoroutine(SpawnObstacleCo());
     }
 
     private IEnumerator SpawnObstacleCo()
