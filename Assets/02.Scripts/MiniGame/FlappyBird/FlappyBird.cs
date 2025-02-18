@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class FlappyBird : MonoBehaviour, IMiniGame
+public class FlappyBird : MiniGame, IMiniGame
 {
     [SerializeField] private GameObject obstacle;
     [SerializeField] private float spawnDelay;
@@ -15,9 +15,10 @@ public class FlappyBird : MonoBehaviour, IMiniGame
     private WaitForSeconds _delay;
     private FlappyBirdObstacle[] _pool = new FlappyBirdObstacle[maxBudget];
     private float _blockSpeed;
-
     private const int maxBudget = 10;
     private bool _isGameOver = false;
+
+    public BindingData<int> score { get; } = new(1);
 
     void Start()
     {
@@ -56,6 +57,8 @@ public class FlappyBird : MonoBehaviour, IMiniGame
             obs.transform.position = transform.position + new Vector3(0f, Random.Range(-maxRandomPosY, maxRandomPosY), 0f);
 
             yield return _delay;
+
+            AddScore();
         }
     }
 
@@ -67,6 +70,11 @@ public class FlappyBird : MonoBehaviour, IMiniGame
     public string GetMiniGameName()
     {
         return "FlappyBird";
+    }
+
+    public void AddScore()
+    {
+        score.Value += 1;
     }
 
     public void SaveScore()
