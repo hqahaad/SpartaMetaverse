@@ -8,4 +8,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/01.Scene/SampleScene.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
+  - enabled: 1
+    path: Assets/01.Scene/MiniGame_FlappyBird.unity
+    guid: be75553ea6f12d84dac8c7286a5ca7b5
   m_configObjects: {}
