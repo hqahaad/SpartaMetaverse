@@ -16,6 +16,7 @@ public class PlayerEntity : MonoBehaviour, IEntity, UserActions.IPlayerActions, 
     private CharacterController2D cc;
     private SpriteRenderer sprRenderer;
     private IRigidbodyController controllerCache;
+    private Animator animator;
 
     private IInputActionCollection collection;
 
@@ -37,15 +38,25 @@ public class PlayerEntity : MonoBehaviour, IEntity, UserActions.IPlayerActions, 
         cc = GetComponent<CharacterController2D>();
         controllerCache = cc;
         sprRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>();
+        animator = transform.GetChild(0).GetComponent<Animator>();
     }
 
     private void Movement(InputAction.CallbackContext context)
     {
+        //юс╫ц
         var moveVec = context.ReadValue<Vector2>() * moveSpeed;
 
         cc.Move(new Vector2(moveVec.x, 0f));
 
-        sprRenderer.flipX = moveVec.x < 0f ? true : false;
+        if (moveVec.x != 0f)
+        {
+            sprRenderer.flipX = moveVec.x < 0f ? true : false;
+            animator.SetInteger("StateID", 1);
+        }
+        else
+        {
+            animator.SetInteger("StateID", 0);
+        }
 
         if (moveVec.y != 0f)
         {

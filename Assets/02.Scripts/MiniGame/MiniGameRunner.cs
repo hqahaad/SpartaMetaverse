@@ -47,7 +47,7 @@ public class MiniGameRunner : InteractionGameObject
     private void GameUISet()
     {
         var go = GameObject.Instantiate(miniGameUI);
-        go.transform.SetParent(GameObject.Find("Canvas").transform);
+        go.transform.SetParent(UIManager.Instance.GetCanvas().transform);
         go.transform.localPosition = Vector3.zero;
         go.SetActive(false);
 

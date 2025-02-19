@@ -7,8 +7,9 @@ using UnityEditor;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using UnityEngine.SceneManagement;
+using System;
 
-//addtive ¾À, ¾ð·Îµå ¾À Ãß°¡
+//addtive ¾ÀÀ¸·Î ¼öÁ¤, ¾ð·Îµå ¾À Ãß°¡
 public class SceneLoadManager : Singleton<SceneLoadManager>
 {
     [SerializeField] private Canvas myCanvas;
@@ -18,12 +19,15 @@ public class SceneLoadManager : Singleton<SceneLoadManager>
 
     private bool isLoaded = false;
 
-    public async void LoadScene(AssetReferenceT<SceneAsset> sceneReference, DisplayLoading displayLoading = DisplayLoading.Display)
+    public event Action OnSceneLoaded = delegate { };
+    public event Action OnSceneUnloaded = delegate { };
+
+    public async void LoadScene(AssetReferenceT<SceneAsset> sceneReference, DisplayLoading displayLoading = DisplayLoading.On)
     {
         await LoadSceneAsync(sceneReference, displayLoading);
     }
 
-    private async Task LoadSceneAsync(AssetReferenceT<SceneAsset> sceneReference, DisplayLoading displayLoading = DisplayLoading.Display)
+    private async Task LoadSceneAsync(AssetReferenceT<SceneAsset> sceneReference, DisplayLoading displayLoading = DisplayLoading.On)
     {
         if (!sceneReference.RuntimeKeyIsValid())
         {
@@ -38,9 +42,7 @@ public class SceneLoadManager : Singleton<SceneLoadManager>
 
         isLoaded = true;
 
-        await Task.Delay(10);
-
-        if (displayLoading == DisplayLoading.Display)
+        if (displayLoading == DisplayLoading.On)
         {
             LoadingEnable();
         }
@@ -58,7 +60,13 @@ public class SceneLoadManager : Singleton<SceneLoadManager>
 
         await handle;
 
+        //**await Unload**
+
+        OnSceneUnloaded?.Invoke();
+
         await handle.Result.ActivateAsync();
+
+        OnSceneLoaded?.Invoke();
 
         await UniTask.Delay((int)fakeLoadingDelaySecond * 1000);
 
@@ -90,6 +98,6 @@ public class SceneLoadManager : Singleton<SceneLoadManager>
 
 public enum DisplayLoading
 {
-    None,
-    Display
+    On,
+    Off
 }
