@@ -4,25 +4,25 @@ using UnityEngine;
 
 public class Singleton<T> : MonoBehaviour where T : Component
 {
-    protected static T _instance;
+    protected static T instance;
 
     public static T Instance
     {
         get
         {
-            if (_instance == null)
+            if (instance == null)
             {
-                _instance = FindFirstObjectByType<T>();
+                instance = FindFirstObjectByType<T>();
             }
 
-            if (_instance == null)
+            if (instance == null)
             {
                 GameObject go = new GameObject();
                 go.name = typeof(T).Name + "Created";
-                _instance = go.AddComponent<T>();
+                instance = go.AddComponent<T>();
             }
 
-            return _instance;
+            return instance;
         }
     }
 
@@ -35,15 +35,15 @@ public class Singleton<T> : MonoBehaviour where T : Component
 
         transform.SetParent(null);
 
-        if (_instance == null)
+        if (instance == null)
         {
-            _instance = this as T;
+            instance = this as T;
             DontDestroyOnLoad(gameObject);
             enabled = true;
         }
         else
         {
-            if (this != _instance)
+            if (this != instance)
             {
                 Destroy(gameObject);
             }

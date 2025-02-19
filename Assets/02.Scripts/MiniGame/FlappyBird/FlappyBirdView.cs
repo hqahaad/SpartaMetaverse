@@ -6,15 +6,15 @@ using UnityEngine;
 
 public class FlappyBirdView : MonoBehaviour
 {
-    private TMP_Text _text;
+    private TMP_Text tmpText;
 
     void Awake()
     {
-        _text = transform.GetChild(0).GetComponent<TMP_Text>();
+        tmpText = transform.GetChild(0).GetComponent<TMP_Text>();
     }
 
     public void UpdateUI(float value)
     {
-        _text.text = "Score : " + value.ToString();
+        tmpText.text = "Score : " + value.ToString();
     }
 }

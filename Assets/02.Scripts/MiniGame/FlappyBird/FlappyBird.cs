@@ -12,33 +12,33 @@ public class FlappyBird : MiniGame, IMiniGame
     [SerializeField] private float maxRandomPosY;
     [SerializeField] private float beginBlockSpeed;
 
-    private WaitForSeconds _delay;
-    private FlappyBirdObstacle[] _pool = new FlappyBirdObstacle[maxBudget];
-    private float _blockSpeed;
+    private WaitForSeconds delayInstruction;
+    private FlappyBirdObstacle[] pool = new FlappyBirdObstacle[maxBudget];
+    private float blockSpeed;
     private const int maxBudget = 10;
-    private bool _isGameOver = false;
+    private bool isGameOver = false;
 
     public BindingData<int> score { get; } = new(1);
 
     void Start()
     {
-        _delay = new WaitForSeconds(spawnDelay);
+        delayInstruction = new WaitForSeconds(spawnDelay);
         SetBlockSpeed(beginBlockSpeed);
 
         for (int i = 0; i < maxBudget; i++)
         {
-            _pool[i] = GameObject.Instantiate(obstacle).GetComponent<FlappyBirdObstacle>();
-            _pool[i].OnUpdate += (go) =>
+            pool[i] = GameObject.Instantiate(obstacle).GetComponent<FlappyBirdObstacle>();
+            pool[i].OnUpdate += (go) =>
             {
-                go.transform.localPosition += Vector3.left * _blockSpeed * Time.deltaTime;
+                go.transform.localPosition += Vector3.left * blockSpeed * Time.deltaTime;
 
                 if (go.transform.position.x < -15f)
                 {
                     go.SetActive(false);
                 }
             };
-            _pool[i].transform.SetParent(this.transform);
-            _pool[i].gameObject.SetActive(false);
+            pool[i].transform.SetParent(this.transform);
+            pool[i].gameObject.SetActive(false);
         }
 
         StartCoroutine(SpawnObstacleCo());
@@ -46,9 +46,9 @@ public class FlappyBird : MiniGame, IMiniGame
 
     private IEnumerator SpawnObstacleCo()
     {
-        while (!_isGameOver)
+        while (!isGameOver)
         {
-            var obs = _pool.FirstOrDefault(x => !x.gameObject.activeSelf);
+            var obs = pool.FirstOrDefault(x => !x.gameObject.activeSelf);
 
             if (obs == null)
                 yield break;
@@ -56,7 +56,7 @@ public class FlappyBird : MiniGame, IMiniGame
             obs.Spawn(Random.Range(minInterval, maxInterval));
             obs.transform.position = transform.position + new Vector3(0f, Random.Range(-maxRandomPosY, maxRandomPosY), 0f);
 
-            yield return _delay;
+            yield return delayInstruction;
 
             AddScore();
         }
@@ -64,7 +64,7 @@ public class FlappyBird : MiniGame, IMiniGame
 
     public void SetBlockSpeed(float blockSpeed)
     {
-        _blockSpeed = blockSpeed;
+        this.blockSpeed = blockSpeed;
     }
 
     public string GetMiniGameName()

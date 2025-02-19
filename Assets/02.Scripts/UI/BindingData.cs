@@ -5,23 +5,23 @@ using UnityEngine;
 
 public class BindingData<T>
 {
-    private T _value;
+    private T value;
 
     public event Action<T> OnValueChanged = delegate { };
 
     public T Value
     {
-        get { return _value; }
+        get { return value; }
         set
         {
-            _value = value;
-            OnValueChanged?.Invoke(_value);
+            this.value = value;
+            OnValueChanged?.Invoke(this.value);
         }
     }
 
     public BindingData(T value)
     {
-        _value = value;
+        this.value = value;
     }
 
     public BindingData()

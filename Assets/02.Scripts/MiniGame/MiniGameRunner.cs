@@ -4,43 +4,44 @@ using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.AddressableAssets;
 
 public class MiniGameRunner : InteractionGameObject
 {
     [SerializeField] private MiniGameInfoSO miniGameSoData;
-    [SerializeField] private SceneAsset scene;
+    [SerializeField] private AssetReferenceT<SceneAsset> scene;
     [SerializeField] private Sprite interactedSprite;
     [SerializeField] private GameObject miniGameUI;
 
-    private SpriteRenderer _renderer;
-    private Sprite _spriteCache;
-    private GameObject _ui;
+    private SpriteRenderer sprRenderer;
+    private Sprite spriteCache;
+    private GameObject gameUI;
 
     void Start()
     {
-        _renderer = GetComponent<SpriteRenderer>();
-        _spriteCache = _renderer.sprite;
+        sprRenderer = GetComponent<SpriteRenderer>();
+        spriteCache = sprRenderer.sprite;
 
         GameUISet();
     }
 
     protected override void OnInteraction(PlayerEntity entity)
     {
-        SceneManager.LoadScene(scene.name);
+        SceneLoadManager.Instance.LoadScene(scene);
     }
 
     protected override void OnTriggerEnter2D(Collider2D other)
     {
         base.OnTriggerEnter2D(other);
-        _renderer.sprite = interactedSprite ?? null;
-        _ui.SetActive(true);
+        sprRenderer.sprite = interactedSprite ?? null;
+        gameUI.SetActive(true);
     }
 
     protected override void OnTriggerExit2D(Collider2D other)
     {
         base.OnTriggerExit2D(other);
-        _renderer.sprite = _spriteCache ?? null;
-        _ui.SetActive(false);
+        sprRenderer.sprite = spriteCache ?? null;
+        gameUI.SetActive(false);
     }
 
     private void GameUISet()
@@ -50,7 +51,7 @@ public class MiniGameRunner : InteractionGameObject
         go.transform.localPosition = Vector3.zero;
         go.SetActive(false);
 
-        _ui = go;
+        gameUI = go;
 
         if (miniGameSoData == null)
             return;

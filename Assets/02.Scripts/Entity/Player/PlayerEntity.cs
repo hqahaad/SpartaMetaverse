@@ -12,40 +12,46 @@ public class PlayerEntity : MonoBehaviour, IEntity, UserActions.IPlayerActions, 
     public event Action<InputAction.CallbackContext> OnMoveCallback = delegate { };
     public event Action<InputAction.CallbackContext> OnInteractionCallback = delegate { };
 
-    private UserActions _input;
-    private CharacterController2D _cc;
-    private SpriteRenderer _spriteRenderer;
-    private IRigidbodyController _controllerCache;
+    private UserActions input;
+    private CharacterController2D cc;
+    private SpriteRenderer sprRenderer;
+    private IRigidbodyController controllerCache;
+
+    private IInputActionCollection collection;
 
     void Awake()
     {
-        _input = new UserActions();
-        _input.Player.SetCallbacks(this);
-        _input.Enable();
+        input = new UserActions();
+        input.Player.SetCallbacks(this);
+        input.Enable();
 
         OnMoveCallback = Movement;
+
+        //InputManager.Instance.RegisterInputAction(InputContext.Player, input);
+
+        //var a = InputManager.Instance.GetInputAction(InputContext.Player);
     }
 
     void Start()
     {
-        _cc = GetComponent<CharacterController2D>();
-        _controllerCache = _cc;
-        _spriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>();
+        cc = GetComponent<CharacterController2D>();
+        controllerCache = cc;
+        sprRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>();
     }
 
     private void Movement(InputAction.CallbackContext context)
     {
         var moveVec = context.ReadValue<Vector2>() * moveSpeed;
 
-        _cc.Move(new Vector2(moveVec.x, 0f));
+        cc.Move(new Vector2(moveVec.x, 0f));
 
-        _spriteRenderer.flipX = moveVec.x < 0f ? true : false;
+        sprRenderer.flipX = moveVec.x < 0f ? true : false;
 
         if (moveVec.y != 0f)
         {
-            if (_cc.IsGround)
+            if (cc.IsGround)
             {
-                _cc.Jump(17f);
+                cc.Jump(17f);
             }
         }
     }

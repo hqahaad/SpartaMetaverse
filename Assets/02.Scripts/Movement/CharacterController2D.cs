@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -34,25 +32,25 @@ public class CharacterController2D : MonoBehaviour, IRigidbodyController
     [SerializeField] private bool isSlope;
     [SerializeField] private bool isSteepSlope;
 
-    private Rigidbody2D _rigidbody;
-    private CapsuleCollider2D _collider;
-    private RaycastHit2D[] _raycastHits = new RaycastHit2D[_maxBudget];
-    private float _gravity = 0f;
-    private Vector2 _groundNormal = Vector2.up;
-    private float _distanceToGround = 0f;
+    private Rigidbody2D myRigidbody;
+    private CapsuleCollider2D myCollider;
+    private RaycastHit2D[] raycastHits = new RaycastHit2D[maxBudget];
+    private float gravity = 0f;
+    private Vector2 groundNormal = Vector2.up;
+    private float distanceToGround = 0f;
 
-    private Vector2 _gravityVelocity = Vector2.zero;
-    private Vector2 _floatingVelocity = Vector2.zero;
-    private Vector2 _inputVelocity = Vector2.zero;
-    private Vector2 _targetVelocity = Vector2.zero;
+    private Vector2 gravityVelocity = Vector2.zero;
+    private Vector2 floatingVelocity = Vector2.zero;
+    private Vector2 inputVelocity = Vector2.zero;
+    private Vector2 targetVelocity = Vector2.zero;
 
-    private const int _maxBudget = 10;
+    private const int maxBudget = 10;
 
     //properties
     public bool IsGround => isGround;
     public bool IsSlope => isSlope;
     public bool IsSteepSlope => isSteepSlope;
-    public Vector2 GroundNormal => _groundNormal;
+    public Vector2 GroundNormal => groundNormal;
 
     public void Move(Vector2 input)
     {
@@ -61,41 +59,41 @@ public class CharacterController2D : MonoBehaviour, IRigidbodyController
 
     public void Jump(float strength)
     {
-        _gravity = -strength;
+        gravity = -strength;
     }
 
     private void DetectedGround()
     {
         isGround = isSlope = isSteepSlope = false;
 
-        int hitCount = Physics2D.CapsuleCastNonAlloc(_collider.bounds.center, _collider.bounds.size, _collider.direction, 0f, Vector2.down, 
-            _raycastHits, detectedDistance + floatingCapsule.Height, targetLayer);
+        int hitCount = Physics2D.CapsuleCastNonAlloc(myCollider.bounds.center, myCollider.bounds.size, myCollider.direction, 0f, Vector2.down, 
+            raycastHits, detectedDistance + floatingCapsule.Height, targetLayer);
 
         if (hitCount > 0)
         {
-            RaycastHit2D hit = _raycastHits[0];
+            RaycastHit2D hit = raycastHits[0];
 
             for (int i = 0; i < hitCount; i++)
             {
-                if (hit.distance > _raycastHits[i].distance)
+                if (hit.distance > raycastHits[i].distance)
                 {
-                    hit = _raycastHits[i];
+                    hit = raycastHits[i];
                 }
             }
 
-            _groundNormal = hit.normal;
-            _distanceToGround = hit.distance;
+            groundNormal = hit.normal;
+            distanceToGround = hit.distance;
 
-            if (_distanceToGround <= floatingCapsule.Height)
+            if (distanceToGround <= floatingCapsule.Height)
             {
                 isGround = true;
 
-                if (Vector2.Angle(_groundNormal, Vector2.up) > slopeLimit)
+                if (Vector2.Angle(groundNormal, Vector2.up) > slopeLimit)
                 {
                     isSlope = true;
                     isSteepSlope = true;
                 }
-                else if (_groundNormal != Vector2.up)
+                else if (groundNormal != Vector2.up)
                 {
                     isSlope = true;
                 }
@@ -105,13 +103,13 @@ public class CharacterController2D : MonoBehaviour, IRigidbodyController
 
     private void Floating()
     {
-        if (_distanceToGround + safetyGroundTolerance <= floatingCapsule.Height && isGround)
+        if (distanceToGround + safetyGroundTolerance <= floatingCapsule.Height && isGround)
         {
-            _floatingVelocity = Vector2.up * (floatingCapsule.Height - _distanceToGround) * floatingStrength;
+            floatingVelocity = Vector2.up * (floatingCapsule.Height - distanceToGround) * floatingStrength;
         }
         else
         {
-            _floatingVelocity = Vector2.zero;
+            floatingVelocity = Vector2.zero;
         }
     }
 
@@ -120,46 +118,46 @@ public class CharacterController2D : MonoBehaviour, IRigidbodyController
         if (!useGravity)
             return;
 
-        if (isGround && !isSteepSlope && _gravity > 0f)
+        if (isGround && !isSteepSlope && gravity > 0f)
         {
-            _gravity = 0f;
+            gravity = 0f;
         }
         else
         {
-            _gravity += gravityForce;
+            gravity += gravityForce;
         }
 
         //_gravity = Mathf.Clamp(_gravity, 0f, maxGravityForce);
-        _gravityVelocity = gravityDirection.normalized * _gravity;
+        gravityVelocity = gravityDirection.normalized * gravity;
 
         if (isSteepSlope)
         {
-            _gravityVelocity = CalculateNormalVector(_gravityVelocity, _groundNormal);
+            gravityVelocity = CalculateNormalVector(gravityVelocity, groundNormal);
         }
     }
 
     private void InternalMove(Vector2 input)
     {
-        _inputVelocity = input;
-        _targetVelocity = _inputVelocity;
+        inputVelocity = input;
+        targetVelocity = inputVelocity;
     }
 
     private void UpdateVelocity()
     {
         if (isSteepSlope)
         {
-            _targetVelocity = Vector2.zero;
+            targetVelocity = Vector2.zero;
         }
 
         if (isGround)
         {
-            _targetVelocity = CalculateNormalVector(_targetVelocity, _groundNormal);
+            targetVelocity = CalculateNormalVector(targetVelocity, groundNormal);
         }
     }
 
     private void ApplyVelocity()
     {
-        _rigidbody.velocity = _gravityVelocity + _floatingVelocity + _targetVelocity;
+        myRigidbody.velocity = gravityVelocity + floatingVelocity + targetVelocity;
     }
 
     private Vector2 CalculateNormalVector(Vector2 vel, Vector2 normal)
@@ -179,8 +177,8 @@ public class CharacterController2D : MonoBehaviour, IRigidbodyController
 
     void Start()
     {
-        _rigidbody = GetComponent<Rigidbody2D>();
-        _collider = GetComponent<CapsuleCollider2D>();
+        myRigidbody = GetComponent<Rigidbody2D>();
+        myCollider = GetComponent<CapsuleCollider2D>();
     }
 
     void OnValidate()
@@ -198,7 +196,7 @@ public class CharacterController2D : MonoBehaviour, IRigidbodyController
 
         ApplyVelocity();
 
-        _inputVelocity = Vector2.zero;
+        inputVelocity = Vector2.zero;
     }
 
     void OnDrawGizmosSelected()

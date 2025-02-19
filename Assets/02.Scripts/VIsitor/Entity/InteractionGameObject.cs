@@ -5,14 +5,14 @@ using UnityEngine.InputSystem;
 
 public abstract class InteractionGameObject : MonoBehaviour, IVisitor
 {
-    private PlayerEntity _entityCache = null;
+    private PlayerEntity entityCache = null;
 
     public void Visit<T>(T visitable) where T : Component, IVisitable
     {
         if (visitable is PlayerEntity entity)
         {
             entity.OnInteractionCallback += Interaction;
-            _entityCache = entity;
+            entityCache = entity;
         }
     }
 
@@ -21,7 +21,7 @@ public abstract class InteractionGameObject : MonoBehaviour, IVisitor
         if (visitable is PlayerEntity entity)
         {
             entity.OnInteractionCallback -= Interaction;
-            _entityCache = null;
+            entityCache = null;
         }
     }
 
@@ -37,9 +37,9 @@ public abstract class InteractionGameObject : MonoBehaviour, IVisitor
 
     protected void Interaction(InputAction.CallbackContext context)
     {
-        if (_entityCache != null)
+        if (entityCache != null)
         {
-            OnInteraction(_entityCache);
+            OnInteraction(entityCache);
         }
     }
 

@@ -7,11 +7,11 @@ public class FlappyBirdCharacterController : MonoBehaviour, IRigidbodyController
 {
     [SerializeField] private float jumpForce;
 
-    private Rigidbody2D _rigidbody;
+    private Rigidbody2D myRigidbody;
 
     void Start()
     {
-        _rigidbody = GetComponent<Rigidbody2D>();
+        myRigidbody = GetComponent<Rigidbody2D>();
     }
 
     void Update()
@@ -29,6 +29,6 @@ public class FlappyBirdCharacterController : MonoBehaviour, IRigidbodyController
 
     public void Jump()
     {
-        _rigidbody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        myRigidbody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
     }
 }
