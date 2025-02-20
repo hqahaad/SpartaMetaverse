@@ -4,14 +4,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerEntity : MonoBehaviour, IEntity, UserActions.IPlayerActions, IVisitable
+public class PlayerEntity : MonoBehaviour, IEntity, UserActions.IPlayerActions, IVisitable, IBind<PositionData>
 {
     [SerializeField]
     private float moveSpeed = 5f;
 
     public event Action<InputAction.CallbackContext> OnMoveCallback = delegate { };
     public event Action<InputAction.CallbackContext> OnInteractionCallback = delegate { };
-
 
     [SerializeField]
     private UserActions input;
@@ -27,6 +26,8 @@ public class PlayerEntity : MonoBehaviour, IEntity, UserActions.IPlayerActions, 
     private Animator animator;
 
     private IInputActionCollection collection;
+    [field: SerializeField]
+    public PositionData Data { get; private set; }
 
     void Awake()
     {
@@ -48,13 +49,25 @@ public class PlayerEntity : MonoBehaviour, IEntity, UserActions.IPlayerActions, 
     void OnEnable()
     {
         input.Enable();
+
+        SceneLoadManager.Instance.OnSceneUnloaded += Save;
     }
 
     void OnDisable()
     {
         input.Disable();
+
+        SceneLoadManager.Instance.OnSceneUnloaded -= Save;
     }
 
+    void Save()
+    {
+        Data.x = transform.position.x;
+        Data.y = transform.position.y;
+
+        SaveLoader.Instance.data.positionData = Data;
+        SaveLoader.Instance.Save();
+    }
 
     private void Movement(InputAction.CallbackContext context)
     {
@@ -111,7 +124,20 @@ public class PlayerEntity : MonoBehaviour, IEntity, UserActions.IPlayerActions, 
             OnInteractionCallback?.Invoke(context);
         }
     }
-
-
     #endregion
+
+    public void Bind(PositionData t)
+    {
+        Data = t;
+
+        transform.position = new Vector3(Data.x, Data.y, transform.position.z);
+    }
+}
+
+
+[System.Serializable]
+public class PositionData : ISavable
+{
+    public float x;
+    public float y;
 }

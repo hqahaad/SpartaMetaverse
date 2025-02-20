@@ -9,8 +9,6 @@ public class FileDataService : IDataService
     private string dataPath = Application.persistentDataPath;
     private string fileExtension = "json";
 
-    private List<string> saveFileList = new();
-
     public FileDataService(ISerializer serializer)
     {
         this.serializer = serializer;
@@ -27,7 +25,7 @@ public class FileDataService : IDataService
 
         if (!overwrite && File.Exists(fileLocation))
         {
-
+            return;
         }
 
         File.WriteAllText(fileLocation, serializer.Serialize(data));
@@ -39,7 +37,13 @@ public class FileDataService : IDataService
 
         if (!File.Exists(fileLocation))
         {
+            //¼öÁ¤
+            GameData newData = new();
+            newData.name = name;
 
+            Save(newData, true);
+
+            return newData;
         }
 
         return serializer.Deserialize<GameData>(File.ReadAllText(fileLocation));
@@ -62,16 +66,4 @@ public class FileDataService : IDataService
             File.Delete(iter);
         }
     }
-}
-
-[System.Serializable]
-public class GameData
-{
-    public string name;
-}
-
-public interface IDataService
-{
-    void Save(GameData data, bool overwrite = true);
-    GameData Load(string name);
 }

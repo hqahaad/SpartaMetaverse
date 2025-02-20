@@ -2,12 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using System;
 using Random = UnityEngine.Random;
-using Cysharp.Threading.Tasks;
-using System.Threading.Tasks;
 
-public class FlappyBird : MiniGame, IMiniGame
+public class FlappyBird : MiniGame, IBind<FlappyBirdData>
 {
     [SerializeField] private GameObject obstacle;
     [SerializeField] private float spawnDelay;
@@ -25,7 +22,7 @@ public class FlappyBird : MiniGame, IMiniGame
 
     public BindingData<bool> IsGameOver { get; } = new(false);
     public BindingData<int> Score { get; } = new(1);
-
+    public FlappyBirdData Data { get; private set; } = new();
 
     void Awake()
     {
@@ -74,8 +71,9 @@ public class FlappyBird : MiniGame, IMiniGame
             AddScore();
 
             yield return delayInstruction;
-
         }
+
+        SaveRanking();
     }
 
     public void SetBlockSpeed(float blockSpeed)
@@ -88,13 +86,40 @@ public class FlappyBird : MiniGame, IMiniGame
         Score.Value += 1;
     }
 
-    public void StartGame()
+    public void Bind(FlappyBirdData t)
     {
-        Time.timeScale = 1f;
+        Data = t;
     }
 
-    public void ExitGame()
+    public void SaveRanking()
     {
+        if (Data == null)
+        {
+            Data = new();
+        }
         
+        if (Data.rankingScoreList.Count > 2)
+        {
+            if (Score.Value > Data.rankingScoreList.Min())
+            {
+                Data.rankingScoreList.Remove(Data.rankingScoreList.Min());
+                Data.rankingScoreList.Add(Score.Value);
+            }
+        }
+        else
+        {
+            Data.rankingScoreList.Add(Score.Value);
+        }
+
+        Data.rankingScoreList.OrderByDescending(x => x);
+
+        SaveLoader.Instance.data.flappyBirdData = Data;
+        SaveLoader.Instance.Save();
     }
+}
+
+[System.Serializable]
+public class FlappyBirdData : ISavable
+{
+    public List<int> rankingScoreList = new();
 }

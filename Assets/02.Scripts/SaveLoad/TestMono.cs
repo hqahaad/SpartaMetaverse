@@ -7,6 +7,11 @@ public class TestMono : MonoBehaviour, IBind<PositionData>
 {
     public PositionData data;
 
+    void Awake()
+    {
+        SaveLoader.Instance.Save();
+    }
+
     public void Bind(PositionData t)
     {
         data = t;
@@ -14,33 +19,6 @@ public class TestMono : MonoBehaviour, IBind<PositionData>
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            Debug.Log("Saver!");
-            SaveLoader.Instance.Save(data);
-        }
-
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            Debug.Log("Load!");
-            //data = SaveLoader.Instance.Load(data.name);
-        }
+        
     }
-}
-
-[System.Serializable]
-public class PositionData : GameData, ISavable
-{
-    public float x = 1;
-    public float y;
-}
-
-public interface ISavable
-{
-
-}
-
-public interface IBind<T> where T : ISavable
-{
-    void Bind(T t);
 }

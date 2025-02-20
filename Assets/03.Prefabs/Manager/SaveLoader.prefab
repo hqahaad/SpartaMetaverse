@@ -45,4 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data:
-    name: 
+    name: SaveData
+    positionData:
+      x: 3
+      y: 3
