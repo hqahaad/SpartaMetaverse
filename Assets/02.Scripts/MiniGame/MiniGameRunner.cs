@@ -15,7 +15,7 @@ public class MiniGameRunner : InteractionGameObject
 
     private SpriteRenderer sprRenderer;
     private Sprite spriteCache;
-    private GameObject gameUI;
+    private UIMiniGameBoard gameUI;
 
     void Start()
     {
@@ -37,7 +37,8 @@ public class MiniGameRunner : InteractionGameObject
 
         base.OnTriggerEnter2D(other);
         sprRenderer.sprite = interactedSprite ?? null;
-        gameUI.SetActive(true);
+
+        gameUI.gameObject.SetActive(true);
     }
 
     protected override void OnTriggerExit2D(Collider2D other)
@@ -47,7 +48,7 @@ public class MiniGameRunner : InteractionGameObject
 
         base.OnTriggerExit2D(other);
         sprRenderer.sprite = spriteCache ?? null;
-        gameUI.SetActive(false);
+        gameUI.gameObject.SetActive(false);
     }
 
     private void GameUISet()
@@ -57,25 +58,23 @@ public class MiniGameRunner : InteractionGameObject
         go.transform.localPosition = Vector3.zero;
         go.SetActive(false);
 
-        gameUI = go;
+        gameUI = go.GetComponent<UIMiniGameBoard>();
 
         if (miniGameSoData == null)
             return;
 
-        //임시코드 나중에 수정하자
-        var tmps = go.transform.GetComponentsInChildren<TextMeshProUGUI>();
+        gameUI.TitleTmp.text = miniGameSoData.gameName;
+        gameUI.DescTmp.text = miniGameSoData.gameDescription;
 
-        foreach (var iter in tmps)
+        string rankingStr = string.Empty;
+
+        //수정필요
+        foreach (var iter in SaveLoader.Instance.data.flappyBirdData.rankingScoreList)
         {
-            if (iter.gameObject.name == "TitleTMP")
-            {
-                iter.text = miniGameSoData.gameName;
-            }
-            else if (iter.gameObject.name == "DescTMP")
-            {
-                iter.text = miniGameSoData.gameDescription;
-            }
+            rankingStr += iter.ToString() + "\n\n";
         }
+
+        gameUI.RankingTmp.text = rankingStr;
     }
 
     private void LoadRanking()

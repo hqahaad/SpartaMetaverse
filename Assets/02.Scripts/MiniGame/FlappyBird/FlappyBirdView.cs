@@ -20,6 +20,7 @@ public class FlappyBirdView : MonoBehaviour
         timerTMP = transform.GetChild(1).GetComponent<TMP_Text>();
         gameOverBoard = transform.GetChild(2).gameObject;
 
+        scoreTMP.gameObject.SetActive(false);
     }
 
     void Start()
@@ -29,7 +30,9 @@ public class FlappyBirdView : MonoBehaviour
         countdownTimer.OnTimerStop += () =>
         {
             timerTMP.gameObject.SetActive(false);
+            scoreTMP.gameObject.SetActive(true);
             Time.timeScale = 1f;
+            UpdateUI(1);
         };
         countdownTimer.Start();
         countdownTimer.OnTimerUpdate += () =>
@@ -56,6 +59,7 @@ public class FlappyBirdView : MonoBehaviour
 
     public void GameOver()
     {
+        scoreTMP.gameObject.SetActive(false);
         gameOverBoard.SetActive(true);
     }
 }

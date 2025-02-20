@@ -111,7 +111,7 @@ public class FlappyBird : MiniGame, IBind<FlappyBirdData>
             Data.rankingScoreList.Add(Score.Value);
         }
 
-        Data.rankingScoreList.OrderByDescending(x => x);
+        Data.rankingScoreList = Data.rankingScoreList.OrderByDescending(x => x).ToList();
 
         SaveLoader.Instance.data.flappyBirdData = Data;
         SaveLoader.Instance.Save();
