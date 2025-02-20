@@ -12,10 +12,18 @@ public class PlayerEntity : MonoBehaviour, IEntity, UserActions.IPlayerActions, 
     public event Action<InputAction.CallbackContext> OnMoveCallback = delegate { };
     public event Action<InputAction.CallbackContext> OnInteractionCallback = delegate { };
 
+
+    [SerializeField]
     private UserActions input;
+
+    [SerializeField]
     private CharacterController2D cc;
+
+    [SerializeField]
     private SpriteRenderer sprRenderer;
     private IRigidbodyController controllerCache;
+
+    [SerializeField]
     private Animator animator;
 
     private IInputActionCollection collection;
@@ -27,10 +35,6 @@ public class PlayerEntity : MonoBehaviour, IEntity, UserActions.IPlayerActions, 
         input.Enable();
 
         OnMoveCallback = Movement;
-
-        //InputManager.Instance.RegisterInputAction(InputContext.Player, input);
-
-        //var a = InputManager.Instance.GetInputAction(InputContext.Player);
     }
 
     void Start()
@@ -40,6 +44,17 @@ public class PlayerEntity : MonoBehaviour, IEntity, UserActions.IPlayerActions, 
         sprRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>();
         animator = transform.GetChild(0).GetComponent<Animator>();
     }
+
+    void OnEnable()
+    {
+        input.Enable();
+    }
+
+    void OnDisable()
+    {
+        input.Disable();
+    }
+
 
     private void Movement(InputAction.CallbackContext context)
     {

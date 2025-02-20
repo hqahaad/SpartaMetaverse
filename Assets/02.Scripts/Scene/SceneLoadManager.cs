@@ -53,7 +53,7 @@ public class SceneLoadManager : Singleton<SceneLoadManager>
         {
             await UniTask.NextFrame();
 
-            fadeImage.fillAmount += fadeAmount * Time.deltaTime;
+            fadeImage.fillAmount += fadeAmount * Time.unscaledDeltaTime;
         }
 
         fadeImage.fillAmount = 1f;
@@ -62,19 +62,25 @@ public class SceneLoadManager : Singleton<SceneLoadManager>
 
         //**await Unload**
 
+        var currentScene = SceneManager.GetActiveScene();
+        //var unload = Addressables.UnloadSceneAsync(currentScene.path.);
+
+
+        //unload 
+
         OnSceneUnloaded?.Invoke();
 
         await handle.Result.ActivateAsync();
 
         OnSceneLoaded?.Invoke();
 
-        await UniTask.Delay((int)fakeLoadingDelaySecond * 1000);
+        await UniTask.Delay((int)fakeLoadingDelaySecond * 1000, ignoreTimeScale: true);
 
         while (fadeImage.fillAmount > 0.05f)
         {
             await UniTask.NextFrame();
 
-            fadeImage.fillAmount -= fadeAmount * Time.deltaTime;
+            fadeImage.fillAmount -= fadeAmount * Time.unscaledDeltaTime;
         }
 
         fadeImage.fillAmount = 0f;

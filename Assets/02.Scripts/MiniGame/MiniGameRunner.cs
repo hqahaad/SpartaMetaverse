@@ -32,6 +32,9 @@ public class MiniGameRunner : InteractionGameObject
 
     protected override void OnTriggerEnter2D(Collider2D other)
     {
+        if (gameUI == null)
+            return;
+
         base.OnTriggerEnter2D(other);
         sprRenderer.sprite = interactedSprite ?? null;
         gameUI.SetActive(true);
@@ -39,6 +42,9 @@ public class MiniGameRunner : InteractionGameObject
 
     protected override void OnTriggerExit2D(Collider2D other)
     {
+        if (gameUI == null)
+            return;
+
         base.OnTriggerExit2D(other);
         sprRenderer.sprite = spriteCache ?? null;
         gameUI.SetActive(false);
@@ -80,3 +86,6 @@ public class MiniGameRunner : InteractionGameObject
 
     }
 }
+
+
+

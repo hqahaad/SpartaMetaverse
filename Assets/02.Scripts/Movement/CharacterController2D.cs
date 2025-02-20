@@ -9,6 +9,7 @@ public class CharacterController2D : MonoBehaviour, IRigidbodyController
     [Header("Floating Capsule")]
     [SerializeField] private FloatingCapsule floatingCapsule;
     [SerializeField] private float floatingStrength;
+    [SerializeField] float damping = 2f;
 
     [Header("Layer")]
     [SerializeField] private LayerMask targetLayer;
@@ -21,7 +22,8 @@ public class CharacterController2D : MonoBehaviour, IRigidbodyController
 
     [Header("Ground Detected")]
     [SerializeField] private float detectedDistance = 1f;
-    [SerializeField] private float safetyGroundTolerance = 0.01f;
+    [SerializeField] private float groundTolerance = 0.01f;
+    [SerializeField] private float skinWidth = 0.05f;
 
     [Header("Slope")]
     [Range(0f, 89f)]
@@ -52,6 +54,8 @@ public class CharacterController2D : MonoBehaviour, IRigidbodyController
     public bool IsSteepSlope => isSteepSlope;
     public Vector2 GroundNormal => groundNormal;
 
+    private Vector2 CapsuleBottomPoint => myCollider.bounds.center + new Vector3(0f, -myCollider.bounds.size.y * 0.5f - floatingCapsule.Height);
+
     public void Move(Vector2 input)
     {
         InternalMove(input);
@@ -66,25 +70,43 @@ public class CharacterController2D : MonoBehaviour, IRigidbodyController
     {
         isGround = isSlope = isSteepSlope = false;
 
-        int hitCount = Physics2D.CapsuleCastNonAlloc(myCollider.bounds.center, myCollider.bounds.size, myCollider.direction, 0f, Vector2.down, 
+        int hitCount = Physics2D.CapsuleCastNonAlloc(myCollider.bounds.center, myCollider.bounds.size - new Vector3(skinWidth, 0f, 0f), myCollider.direction, 0f, Vector2.down, 
             raycastHits, detectedDistance + floatingCapsule.Height, targetLayer);
 
         if (hitCount > 0)
         {
-            RaycastHit2D hit = raycastHits[0];
+            RaycastHit2D hit = default;
 
             for (int i = 0; i < hitCount; i++)
             {
-                if (hit.distance > raycastHits[i].distance)
+                var dist = CapsuleBottomPoint.y - hit.point.y;
+
+                if (dist > CapsuleBottomPoint.y - raycastHits[i].point.y || hit == default)
                 {
                     hit = raycastHits[i];
                 }
+
+                Debug.DrawLine(transform.position, raycastHits[i].point);
             }
 
-            groundNormal = hit.normal;
-            distanceToGround = hit.distance;
+            Debug.DrawLine(transform.position, hit.point, Color.red);
 
-            if (distanceToGround <= floatingCapsule.Height)
+            var ray = Physics2D.Raycast(hit.point + new Vector2(0f, 0.01f), Vector2.down, 0.02f, targetLayer);
+
+            if (ray)
+            {
+                groundNormal = ray.normal;
+            }
+            else
+            {
+                groundNormal = Vector2.up;
+            }
+
+            Debug.DrawLine(hit.point, hit.point + groundNormal * 5f, Color.magenta);
+
+            distanceToGround = CapsuleBottomPoint.y - hit.point.y;
+
+            if (distanceToGround <= 0f + groundTolerance)
             {
                 isGround = true;
 
@@ -103,9 +125,10 @@ public class CharacterController2D : MonoBehaviour, IRigidbodyController
 
     private void Floating()
     {
-        if (distanceToGround + safetyGroundTolerance <= floatingCapsule.Height && isGround)
+        if (distanceToGround < 0)
         {
-            floatingVelocity = Vector2.up * (floatingCapsule.Height - distanceToGround) * floatingStrength;
+            float correctionSpd = -distanceToGround * floatingStrength;
+            floatingVelocity.y = Mathf.Lerp(floatingVelocity.y, correctionSpd, Time.deltaTime * damping);
         }
         else
         {
@@ -118,16 +141,15 @@ public class CharacterController2D : MonoBehaviour, IRigidbodyController
         if (!useGravity)
             return;
 
-        if (isGround && !isSteepSlope && gravity > 0f)
+        if (isGround && !isSteepSlope && gravity != 0f)
         {
             gravity = 0f;
         }
-        else
+        else if (!isGround)
         {
             gravity += gravityForce;
         }
 
-        //_gravity = Mathf.Clamp(_gravity, 0f, maxGravityForce);
         gravityVelocity = gravityDirection.normalized * gravity;
 
         if (isSteepSlope)
@@ -191,17 +213,11 @@ public class CharacterController2D : MonoBehaviour, IRigidbodyController
     {
         DetectedGround();
         ApplyGravity();
-        UpdateVelocity();
         Floating();
-
+        UpdateVelocity();
         ApplyVelocity();
 
         inputVelocity = Vector2.zero;
-    }
-
-    void OnDrawGizmosSelected()
-    {
-            
     }
     #endregion
 }

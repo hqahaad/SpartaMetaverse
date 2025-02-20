@@ -9,9 +9,13 @@ public class FlappyBirdPresenter : MonoBehaviour
 
     void Awake()
     {
-        model.score.OnValueChanged += (val) =>
+        model.Score.OnValueChanged += (val) =>
         {
             view.UpdateUI(val);
+        };
+        model.IsGameOver.OnValueChanged += (val) =>
+        {
+            view.GameOver();
         };
     }
 }

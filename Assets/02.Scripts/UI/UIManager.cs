@@ -34,7 +34,7 @@ public class UIManager : Singleton<UIManager>
             if (canvas.gameObject == globalCanvas.gameObject)
                 continue;
 
-            canvas.transform.SetParent(null);
+            Destroy(canvas.gameObject);
         }
     }
 }

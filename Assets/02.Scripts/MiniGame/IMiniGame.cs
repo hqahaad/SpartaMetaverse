@@ -4,6 +4,6 @@ using UnityEngine;
 
 public interface IMiniGame
 {
-    string GetMiniGameName();
-    void SaveScore();
+    void StartGame();
+    void ExitGame();
 }

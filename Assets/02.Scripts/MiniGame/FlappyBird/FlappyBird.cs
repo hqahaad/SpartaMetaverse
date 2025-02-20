@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using System;
+using Random = UnityEngine.Random;
+using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 
 public class FlappyBird : MiniGame, IMiniGame
 {
@@ -16,9 +20,18 @@ public class FlappyBird : MiniGame, IMiniGame
     private FlappyBirdObstacle[] pool = new FlappyBirdObstacle[maxBudget];
     private float blockSpeed;
     private const int maxBudget = 10;
-    private bool isGameOver = false;
 
-    public BindingData<int> score { get; } = new(1);
+    private FlappyBirdCharacterController player;
+
+    public BindingData<bool> IsGameOver { get; } = new(false);
+    public BindingData<int> Score { get; } = new(1);
+
+
+    void Awake()
+    {
+        player = FindObjectOfType<FlappyBirdCharacterController>();
+        player.isGameOver.OnValueChanged += val => IsGameOver.Value = val;
+    }
 
     void Start()
     {
@@ -28,6 +41,7 @@ public class FlappyBird : MiniGame, IMiniGame
         for (int i = 0; i < maxBudget; i++)
         {
             pool[i] = GameObject.Instantiate(obstacle).GetComponent<FlappyBirdObstacle>();
+
             pool[i].OnUpdate += (go) =>
             {
                 go.transform.localPosition += Vector3.left * blockSpeed * Time.deltaTime;
@@ -44,9 +58,10 @@ public class FlappyBird : MiniGame, IMiniGame
         StartCoroutine(SpawnObstacleCo());
     }
 
+    //async task·Î ¼öÁ¤
     private IEnumerator SpawnObstacleCo()
     {
-        while (!isGameOver)
+        while (!IsGameOver.Value)
         {
             var obs = pool.FirstOrDefault(x => !x.gameObject.activeSelf);
 
@@ -56,9 +71,10 @@ public class FlappyBird : MiniGame, IMiniGame
             obs.Spawn(Random.Range(minInterval, maxInterval));
             obs.transform.position = transform.position + new Vector3(0f, Random.Range(-maxRandomPosY, maxRandomPosY), 0f);
 
+            AddScore();
+
             yield return delayInstruction;
 
-            AddScore();
         }
     }
 
@@ -67,17 +83,17 @@ public class FlappyBird : MiniGame, IMiniGame
         this.blockSpeed = blockSpeed;
     }
 
-    public string GetMiniGameName()
-    {
-        return "FlappyBird";
-    }
-
     public void AddScore()
     {
-        score.Value += 1;
+        Score.Value += 1;
     }
 
-    public void SaveScore()
+    public void StartGame()
+    {
+        Time.timeScale = 1f;
+    }
+
+    public void ExitGame()
     {
         
     }

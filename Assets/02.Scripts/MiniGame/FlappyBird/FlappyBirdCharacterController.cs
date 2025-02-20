@@ -9,6 +9,8 @@ public class FlappyBirdCharacterController : MonoBehaviour, IRigidbodyController
 
     private Rigidbody2D myRigidbody;
 
+    public BindingData<bool> isGameOver = new(false);
+
     void Start()
     {
         myRigidbody = GetComponent<Rigidbody2D>();
@@ -16,9 +18,19 @@ public class FlappyBirdCharacterController : MonoBehaviour, IRigidbodyController
 
     void Update()
     {
+        if (isGameOver.Value)
+            return;
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Jump();
+        }
+
+        var viewPos = Camera.main.WorldToViewportPoint(transform.position);
+
+        if (viewPos.y < -0.1f || viewPos.y > 1.1f)
+        {
+            isGameOver.Value = true;
         }
     }
 
@@ -30,5 +42,10 @@ public class FlappyBirdCharacterController : MonoBehaviour, IRigidbodyController
     public void Jump()
     {
         myRigidbody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        isGameOver.Value = true;
     }
 }
